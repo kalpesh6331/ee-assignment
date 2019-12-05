@@ -166,12 +166,12 @@ resource "aws_instance" "ee_public_instance" {
   }
   provisioner "remote-exec" {
     inline = [
-      "sudo apt-get -y update",
+	  "sudo rm -f /var/lib/dpkg/lock-frontend && sudo rm -f /var/lib/apt/lists/lock", # Need to clear apt locks just in case it is being held by some ui process
+	  "sudo apt-get -y update",
 	  "sudo apt-get -y upgrade",
 	  "sudo apt-get install -y python",
 	  "sudo apt-add-repository -y ppa:ansible/ansible",
 	  "sudo apt-get -y update",
-	  "sleep 30", #Introduced sleep because apt-get update sometimes holds the dpkg lock for longer time causing the ansible installation to fail
 	  "sudo apt-get install -y ansible",
 	  "sudo apt install -y default-jre",
 	  "wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -",
