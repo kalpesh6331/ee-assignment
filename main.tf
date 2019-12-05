@@ -238,7 +238,7 @@ resource "null_resource" "docker_provisioner" {
   provisioner "remote-exec" {
     inline = [
 	  #Create ansible hosts file
-      "echo '[all]' > /home/ubuntu/hosts_file",
+	  "echo '[all]' > /home/ubuntu/hosts_file",
 	  "echo ${aws_instance.ee_private_instance.private_ip} >> /home/ubuntu/hosts_file",
 	  "chmod 600 /home/ubuntu/id_rsa",
 	  #Run docker playbook
