@@ -1,5 +1,5 @@
 provider "aws" {
-  region = var.aws_region
+  region     = var.aws_region
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
 }
@@ -59,7 +59,7 @@ resource "aws_subnet" "ee_public_subnet" {
 
 #Associate public route table with public subnet
 resource "aws_route_table_association" "ee_RT_to_pub_subnet"{
-    subnet_id = aws_subnet.ee_public_subnet.id
+    subnet_id      = aws_subnet.ee_public_subnet.id
     route_table_id = aws_route_table.ee_public_RT.id
 }
 
@@ -78,7 +78,7 @@ resource "aws_eip" "nat_eip" {
 #Create NAT gateway
 resource "aws_nat_gateway" "ee_nat_gw" {
 	allocation_id = aws_eip.nat_eip.id
-	subnet_id = aws_subnet.ee_public_subnet.id
+	subnet_id     = aws_subnet.ee_public_subnet.id
 	tags = {
     Name = "ee_nat_gw"
   }
@@ -108,7 +108,7 @@ resource "aws_subnet" "ee_private_subnet" {
 
 #Associate private route table with private subnet
 resource "aws_route_table_association" "ee_RT_to_priv_subnet"{
-    subnet_id = aws_subnet.ee_private_subnet.id
+    subnet_id      = aws_subnet.ee_private_subnet.id
     route_table_id = aws_route_table.ee_private_RT.id
 }
 
@@ -120,22 +120,22 @@ resource "aws_route_table_association" "ee_RT_to_priv_subnet"{
 resource "aws_security_group" "ee_public_sg" {
     vpc_id = aws_vpc.ee_vpc.id
     egress {
-        from_port = 0
-        to_port = 0
-        protocol = -1
+        from_port   = 0
+        to_port     = 0
+        protocol    = -1
         cidr_blocks = ["0.0.0.0/0"]
 		#Allowing egress traffic to all
     }
     ingress {
-        from_port = 22
-        to_port = 22
-        protocol = "tcp"
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
 	ingress { #For Jenkins
-        from_port = 8080
-        to_port = 8080
-        protocol = "tcp"
+        from_port   = 8080
+        to_port     = 8080
+        protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
 	tags = {
@@ -203,16 +203,16 @@ resource "aws_instance" "ee_public_instance" {
 resource "aws_security_group" "ee_private_sg" {
     vpc_id = aws_vpc.ee_vpc.id
     egress {
-        from_port = 0
-        to_port = 0
-        protocol = -1
+        from_port   = 0
+        to_port     = 0
+        protocol    = -1
         cidr_blocks = ["0.0.0.0/0"]
 		#Allowing egress traffic to all
     }
     ingress {
-        from_port = 22
-        to_port = 22
-        protocol = "tcp"
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
         cidr_blocks = ["172.20.0.0/16"]
     }
 	tags = {
