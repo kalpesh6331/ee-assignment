@@ -171,6 +171,16 @@ resource "aws_instance" "ee_public_instance" {
   }
   
   provisioner "file" {
+	source = "configure-jenkins-admin.groovy"
+	destination = "/home/ubuntu/configure-jenkins-admin.groovy"
+  }
+  
+  provisioner "file" {
+	source = "basic-security.groovy"
+	destination = "/home/ubuntu/basic-security.groovy"
+  }
+  
+  provisioner "file" {
     source      = var.private_key_path
     destination = "/home/ubuntu/id_rsa"
   }
@@ -181,7 +191,7 @@ resource "aws_instance" "ee_public_instance" {
   
   provisioner "remote-exec" {
     inline = [
-	  "sudo rm -f /var/lib/dpkg/lock-frontend && sudo rm -f /var/lib/apt/lists/lock", # Need to clear apt locks just in case it is being held by some ui process
+	  "sudo rm -f /var/lib/dpkg/lock-frontend && sudo rm -f /var/lib/apt/lists/lock && sudo rm -f /var/lib/dpkg/lock", # Need to clear apt locks just in case it is being held by some ui process
 	  "sudo apt-get -y update",
 	  "sudo apt-get -y upgrade",
 	  "sudo apt-get install -y python",
