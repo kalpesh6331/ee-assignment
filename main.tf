@@ -164,6 +164,21 @@ resource "aws_instance" "ee_public_instance" {
 	host     	= self.public_ip
 	private_key = file(var.private_key_path)
   }
+  
+  provisioner "file" {
+	source = "configure-jenkins.yaml"
+	destination = "/home/ubuntu/configure-jenkins.yaml"
+  }
+  
+  provisioner "file" {
+    source      = var.private_key_path
+    destination = "/home/ubuntu/id_rsa"
+  }
+  provisioner "file" {
+    source      = var.docker_playbook_path
+    destination = "/home/ubuntu/install_docker.yaml"
+  }
+  
   provisioner "remote-exec" {
     inline = [
 	  "sudo rm -f /var/lib/dpkg/lock-frontend && sudo rm -f /var/lib/apt/lists/lock", # Need to clear apt locks just in case it is being held by some ui process
@@ -179,17 +194,12 @@ resource "aws_instance" "ee_public_instance" {
 	  "sudo apt-get -y update",
 	  "sudo apt install -y jenkins",
 	  "sudo systemctl start jenkins",
-	  "sudo ufw allow 8080"
+	  "sudo ufw allow 8080",
+	  "ansible-playbook /home/ubuntu/install_docker.yaml",
+	  "ansible-playbook /home/ubuntu/configure-jenkins.yaml"
    ]
   }
-  provisioner "file" {
-    source      = var.private_key_path
-    destination = "/home/ubuntu/id_rsa"
-  }
-  provisioner "file" {
-    source      = var.docker_playbook_path
-    destination = "/home/ubuntu/install_docker.yaml"
-  }
+  
   tags = {
     Name = "ee_public_instance"
   }
@@ -223,7 +233,7 @@ resource "aws_security_group" "ee_private_sg" {
 #Create the aws instance in private subnet
 resource "aws_instance" "ee_private_instance" {
   ami             			  = var.ubuntu_ami
-  instance_type   			  = "t2.micro"
+  instance_type   			  = "t2.large"
   key_name        			  = aws_key_pair.ee_login_key.key_name
   security_groups		 	  = [aws_security_group.ee_private_sg.id]
   subnet_id                   = aws_subnet.ee_private_subnet.id
@@ -254,3 +264,15 @@ resource "null_resource" "docker_provisioner" {
   }
   depends_on = [aws_instance.ee_private_instance, aws_instance.ee_public_instance]
 }
+
+##############################
+#Configuring ELB#
+##############################
+#resource "aws_elb" "ee_elb" {
+#	listener {
+#    instance_port     = 9000
+#    instance_protocol = "http"
+#    lb_port           = 80
+#    lb_protocol       = "http"
+#  }
+#}
